@@ -13,24 +13,35 @@ const SearchParams = () => {
   const [breed, setBreed] = useState("");
   // const [pets, setPets] = useState([]);
 
-  const breedsQuary = useBreedList(animal);
+  const [searchParams, setSearchParams] = useState({
+    location: '',
+    animal: '',
+    breed: '',
+  });
 
+  const breedsQuary = useBreedList(searchParams.animal);
   const breeds=breedsQuary?.data?.breeds ?? []
-   
-  const petsQuery=usePetsSearch({animal,location,breed});
+  const petsQuery=usePetsSearch(searchParams);
+
   const pets=petsQuery?.data?.pets ?? [];
 
   return (
     <div className="search-params">
       <form
-        onSubmit={(e) => {
+         onSubmit={(e) => {
           e.preventDefault();
-          fetshPets();
+          const formDate = new FormData(e.target);
+          // console.log(e.target);
+          const animal = formDate.get('animal');
+          const location = formDate.get('location');
+          const breed = formDate.get('breed');
+          setSearchParams({ animal, location, breed });
         }}
       >
         <label htmlFor="location">
           Location
           <input
+             name="location"
             type="text"
             id="location"
             value={location}
@@ -44,9 +55,13 @@ const SearchParams = () => {
           Animal
           <select
             id="animal"
-            value={animal}
+            name="animal"
             onChange={(e) => {
-              setAnimal(e.target.value);
+              setSearchParams({
+                ...searchParams,
+                animal: e.target.value,
+                breed: '',
+              });
             }}
           >
             {Animals.map((animal) => (
@@ -59,6 +74,7 @@ const SearchParams = () => {
         <label htmlFor="breed">
           Breed
           <select
+              name="breed"
             id="breed"
             value={breed}
             disabled={!breeds.length}
